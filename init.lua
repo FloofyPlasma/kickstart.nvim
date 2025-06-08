@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -282,6 +282,100 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
     },
+  },
+
+  spec = {
+    {
+      'LazyVim/LazyVim',
+      import = 'lazyvim.plugins',
+      opts = {
+        theme = "catpuccin",
+        news = {
+          lazyvim = true,
+          neovim = true,
+        },
+      },
+      dependencies = { 'catppuccin/nvim' },
+    },
+  },
+
+  {
+    'catppuccin/nvim',
+    lazy = false,
+    priority = 1000,
+    name = 'catppuccin',
+  },
+
+  {
+    'folke/snacks.nvim',
+    opts = {
+      dashboard = {
+        preset = {},
+      },
+    },
+  },
+
+  {
+    'nvim-telescope/telescope.nvim',
+    tag = '0.1.8',
+
+    dependencies = { 'nvim-lua/plenary.nvim' },
+  },
+
+  {
+    'rcarriga/nvim-notify',
+    opts = {
+      timeout = 5000,
+    },
+  },
+
+  {
+    'b0o/incline.nvim',
+    dependencies = { 'craftzdog/solarized-osaka.nvim' },
+    event = 'BufReadPre',
+    priority = 1200,
+    config = function()
+      local colors = require('solarized-osaka.colors').setup()
+      require('incline').setup {
+        highlight = {
+          groups = {
+            InclineNormal = { guibg = colors.magenta500, guifg = colors.base04 },
+            InclineNormalNC = { guifg = colors.violet500, guibg = colors.base03 },
+          },
+        },
+        window = { margin = { vertical = 0, horizontal = 1 } },
+        hide = {
+          cursorline = true,
+        },
+        render = function(props)
+          local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ':t')
+          if vim.bo[props.buf].modified then
+            filename = '[+] ' .. filename
+          end
+
+          local icon, color = require('nvim-web-devicons').get_icon_color(filename)
+          return { { icon, guifg = color }, { ' ' }, { filename } }
+        end,
+      }
+    end,
+  },
+
+  {
+    'nvim-lualine/lualine.nvim',
+    opts = function(_, opts)
+      local LazyVim = require 'lazyvim.util'
+      opts.sections.lualine_c[4] = {
+        LazyVim.lualine.pretty_path {
+          length = 0,
+          relative = 'cwd',
+          modified_hl = 'MatchParen',
+          directory_hl = '',
+          filename_hl = 'Bold',
+          modified_sign = '',
+          readonly_icon = ' 󰌾 ',
+        },
+      }
+    end,
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -671,7 +765,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -681,7 +775,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
         --
 
         lua_ls = {
@@ -731,6 +825,29 @@ require('lazy').setup({
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
             require('lspconfig')[server_name].setup(server)
           end,
+        },
+      }
+
+      -- SourceKit-LSP increasingly relies on the editor informing the server when certain files change.
+      -- This need is communicated through dynamic registration. You don’t have to understand what that
+      -- means, but Neovim doesn’t implement dynamic registration. You’ll notice this when you update
+      -- your package manifest, or add new files to your compile_commands.json file and LSP doesn’t
+      -- work without restarting Neovim.
+      --
+      -- Instead, we know that SourceKit-LSP needs this functionality, so we’ll enable it statically.
+      -- We’ll update our sourcekit setup configuration to manually set the didChangeWatchedFiles
+      -- capability.
+      --
+
+      -- configure Swift serve here since it is not installed via Mason
+      require('lspconfig').sourcekit.setup {
+        -- capabilities = capabilities,
+        capabilities = {
+          workspace = {
+            didChangeWatchedFiles = {
+              dynamicRegistration = true,
+            },
+          },
         },
       }
     end,
@@ -984,7 +1101,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
@@ -1011,6 +1128,34 @@ require('lazy').setup({
     },
   },
 })
+
+require("catppuccin").setup({
+    
+      flavour = 'mocha', -- latte, frappe, macchiato, mocha
+      background = { -- :h background
+        light = 'latte',
+        dark = 'mocha',
+      },
+      transparent_background = true, -- disables setting the background color.
+      show_end_of_buffer = false, -- shows the '~' characters after the end of buffers
+      default_integrations = true,
+      integrations = {
+        cmp = true,
+        gitsigns = true,
+        nvimtree = true,
+        treesitter = true,
+        notify = true,
+        mason = true,
+        mini = {
+          enabled = true,
+          indentscope_color = '',
+        },
+        -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
+      },
+    
+})
+
+vim.cmd.colorscheme "catppuccin-mocha"
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
