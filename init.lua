@@ -177,19 +177,17 @@ require('lazy').setup({
     },
   },
 
-  spec = {
-    {
-      'LazyVim/LazyVim',
-      import = 'lazyvim.plugins',
-      opts = {
-        theme = 'catpuccin',
-        news = {
-          lazyvim = true,
-          neovim = true,
-        },
+  {
+    'LazyVim/LazyVim',
+    import = 'lazyvim.plugins',
+    opts = {
+      theme = 'catpuccin',
+      news = {
+        lazyvim = true,
+        neovim = true,
       },
-      dependencies = { 'catppuccin/nvim' },
     },
+    dependencies = { 'catppuccin/nvim' },
   },
 
   {
@@ -925,7 +923,7 @@ require('lazy').setup({
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
-    'echasnovski/mini.nvim',
+    'nvim-mini/mini.nvim',
     config = function()
       -- Better Around/Inside textobjects
       --
@@ -987,7 +985,7 @@ require('lazy').setup({
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
 
-  require 'kickstart.plugins.debug',
+  -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
