@@ -1,11 +1,3 @@
--- debug.lua
---
--- Shows how to use the DAP plugin to debug your code.
---
--- Primarily focused on configuring the debugger for Go, but can
--- be extended to other languages as well. That's why it's called
--- kickstart.nvim and not kitchen-sink.nvim ;)
-
 return {
   -- NOTE: Yes, you can install new plugins here!
   'mfussenegger/nvim-dap',
@@ -95,6 +87,7 @@ return {
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         'delve',
+        'codelldb',
       },
     }
 
@@ -135,6 +128,23 @@ return {
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+    dap.configurations.c = {
+      {
+        name = 'CMake: Build and Debug',
+        type = 'codelldb',
+        request = 'launch',
+        program = function()
+          local cmake = require 'cmake-tools'
+          cmake.build { sync = true }
+          return cmake.get_launch_target_path()
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false,
+      },
+    }
+
+    dap.configurations.cpp = dap.configurations.c
 
     -- Install golang specific config
     require('dap-go').setup {
